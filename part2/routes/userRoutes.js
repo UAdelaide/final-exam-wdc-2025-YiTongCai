@@ -28,11 +28,22 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.get('/me', (req, res) => {
+router.get('/api/mydogs', async (req, res) => {
   if (!req.session.user) {
-    return res.status(401).json({ error: 'Not logged in' });
+    return res.status(401).json({ error: 'User not logged in' });
   }
-  res.json(req.session.user);
+
+  const ownerId = req.session.user.user_id;
+
+  try {
+    const [rows] = await db.query(
+      'SELECT dog_id, name FROM Dogs WHERE owner_id = ?',
+      [ownerId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch dogs' });
+  }
 });
 
 // POST login (dummy version)
