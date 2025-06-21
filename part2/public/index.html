@@ -40,8 +40,24 @@
     createApp({
       data() {
         return {
-          message: 'Welcome to the Dog Walking Service!'
+          message: 'Welcome to the Dog Walking Service!',
+          dogs: []
         };
+      },
+      method: {
+        async loadDogs(){
+          const res = await fetch('/api/dogs');
+          const dogList = await res.json();
+          const withImages = await Promise.all(dogList.map(async(dog) => {
+            const imgRes = await fetch('https://dog.ceo/api/breeds/image/random');
+            const imgData = await imgRes.json();
+            return { ...dog, image: imgData.message};
+          }));
+          this.dogs = withImages;
+        }
+      },
+      mounted(){
+        this.loadDogs();
       }
     }).mount('#app');
   </script>
