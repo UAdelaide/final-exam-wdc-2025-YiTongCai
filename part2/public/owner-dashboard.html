@@ -13,6 +13,11 @@
     <form action="/logout" method="POST" class="mb-3">
       <button type="submit" class="bth bth-danger">Logout</button>
     </form>
+    <label for="dog-select">Select Your Dog:</label>
+    <select id="dog-select" name="dog_id" required>
+      <option value="">-- Choose a dog --</option>
+    </select>
+
     <!-- Walk request form -->
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
@@ -90,7 +95,26 @@
             error.value = 'Failed to load walk requests';
           }
         }
+        async function loadDogs() {
+          try {
+            const response = await fetch('/api/mydogs');
+            const dogs = await response.json();
 
+            const select = document.getElementById('dog-select');
+            select.innerHTML = '<option value="">-- Choose a dog --</option>';
+
+            dogs.forEach(dog => {
+              const option = document.createElement('option');
+              option.value = dog.dog_id;
+              option.textContent = dog.name;
+              select.appendChild(option);
+            });
+          } catch (error) {
+            console.error('Error loading dogs:', error);
+          }
+        }
+
+document.addEventListener('DOMContentLoaded', loadDogs);
         async function submitWalkRequest() {
           try {
             const res = await fetch('/api/walks', {
