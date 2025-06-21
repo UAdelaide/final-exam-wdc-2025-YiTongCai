@@ -58,21 +58,43 @@
         }
 
         async function applyToWalk(requestId) {
+          const walkerId = await getCurrentUser();
+          if(!walkerId){
+            alert('You must be logged in as a walker.');
+            return;
+          }
           try {
             const res = await fetch(`/api/walks/${requestId}/apply`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ walker_id: user })
+              body: JSON.stringify({ request_id: requestId, walker_id: walkerId })
             });
             const result = await res.json();
 
-            if (!res.ok) throw new Error(result.error || 'Application failed');
-            message.value = result.message;
-            error.value = '';
-            await loadWalkRequests();
-          } catch (err) {
-            error.value = err.message;
-            message.value = '';
+            if (!res.ok){
+              throw new Error(result.error || 'Application failed');
+              message.value = result.message;
+              error.value = '';
+              await loadWalkRequests();
+              location.reload();
+          } else {
+              alert(result.error || 'Failed to apply.');
+            }
+          }catch (err) {
+              console.error('Apply error:',err);
+              error.value = err.message;
+              message.value = '';
+          }
+        }
+        async function getCurrentUser(){
+          try{
+            const res = await fetch('/api/users/me');
+            if(!res.ok) throw new Error('Failed to get user');
+            const user = await res.json();
+            return user.user_id;
+          }catch(err){
+            console.error('Error getting current user:', err)
+            return null;
           }
         }
 
