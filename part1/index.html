@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>dog of the day</title>
+        <script scr="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <style>
+            body{
+                font-size: 16px;
+                color: white;
+                text-align: center;
+                animation: spin 10s liner infinite;
+            }
+            @keyframes spin{
+                from{transform: rotate(0deg);}
+                to{transform: rotate(360deg);}
+            }
+            button{
+                font-size: 24px;
+                padding: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <h1>dog of the day</h1>
+            <img v-if=dogImage :src="dogImage" alt="Random Dog" width="300">
+            <br>
+            <button type="button" @click="getDog">click 100 times to see new dog</button>
+            <p>You have clicked {{clickCount}}times</p>
+        </div>
+        <script>
+            const{createApp}=Vue;
+            createApp({
+                data(){
+                    return{
+                        dogImage:'',
+                        clickCount:0
+                    }
+                },
+                methods:{
+                    getDog(){
+                        this.clickCount++;
+                        if(this.clickCount>=100){
+                            fetch('https://dog.ceo/dog-api/documentation/random')
+                            .then(res => res.json())
+                            .then(data =>{
+                                this.dogImage = data.message;
+                                this.clickCount = 0;
+                            });
+                        }
+                    }
+                },
+                mounted(){
+                    this.getDog();
+                }
+            }).mount('#app')
+        </script>
+    </body>
+</html>
